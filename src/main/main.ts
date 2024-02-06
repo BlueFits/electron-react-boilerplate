@@ -14,6 +14,7 @@ import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
+import Puppeteer from './utils/Puppeteer';
 
 class AppUpdater {
   constructor() {
@@ -26,9 +27,14 @@ class AppUpdater {
 let mainWindow: BrowserWindow | null = null;
 
 ipcMain.on('ipc-example', async (event, arg) => {
+  const instance = await Puppeteer.build();
+  const data = await instance.checkPage(
+    'https://www.bmo.com/en-ca/main/personal/',
+    "alert('test)",
+  );
   const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
   console.log(msgTemplate(arg));
-  event.reply('ipc-example', msgTemplate('pong'));
+  event.reply('ipc-example', data);
 });
 
 if (process.env.NODE_ENV === 'production') {
